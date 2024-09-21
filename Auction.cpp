@@ -1,24 +1,19 @@
 #include <iostream>
 #include <vector>
-#include <map>
 #include <algorithm>
+#include <set>
 
 using namespace std;
 
 int main() {
     int N,M,A;
     cin >> N >> M >> A; 
-    map<int,int> item;
-    map<int,map<int,int>> user;
-    map<int,vector<int>> ans;
+    vector<vector<int>> item(N, vector<int>(M));
+    vector<set<int>> ans(N, set<int>());
 
-    for (int i=1; i<N+1; i++) {
+    for (int i=0; i<N; i++) {
         int quantity; cin >> quantity;
-        item[i] = quantity;
-    }
-    for (int i=1; i<=M; i++) {
-        user[i];
-        ans[i];
+        item[i][0] = quantity;
     }
     for (int i=0; i<A; i++) {
         char act;
@@ -26,33 +21,26 @@ int main() {
         int label,label_item,money;
         if (act == 'B') {
             cin >> label >> label_item >> money;
-            user[label][label_item] = money;
+            item[label_item-1][label] = money;
         } else {
             cin >> label >> label_item;
-            user[label][label_item] = 0;
+            item[label_item-1][label] = 0;
         }
     }
-    for (auto &i:item) {
-        vector<pair<int,int>> check;
-        for (auto &j:user) {
-            check.push_back({user[j.first][i.first], j.first});
-        }
-        sort(check.begin(),check.end());
-        for (int c=0; c<i.second; c++) {
-            auto max = max_element(check.begin(),check.end());
-            if (max != check.end() && max->first > 0) {
-                ans[max->second].push_back(i.first);
-                max->first = 0;
-                user[max->second][i.first] = 0; 
-            } else {
-                break;
-            }
+    for (int i=0; i<item.size(); i++) {
+        auto max = max_element(item[i].begin(), item[i].end());
+        while (item[i][0] > 0 && *max > 0) {
+            int d = distance(item[i].begin(), max) - 1;
+            item[i][0]--;
+            ans[i].insert(d);
+            *max = 0;
+            auto max = max_element(item[i].begin(), item[i].end());
         }
     }
-    for (auto &u:ans) {
-        if (!u.second.empty()) {
-            for (auto &items:u.second) {
-                cout << items << " ";
+    for (auto s:ans) {
+        if (!s.empty()) {
+            for (auto i:s) {
+                cout << i << " ";
             }
             cout << endl;
         } else {
